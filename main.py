@@ -1,10 +1,14 @@
 import subprocess
 
+# Uses subprocess to execute a command we pass the function with Powershell
 def powershellRun(filename):
     process = subprocess.Popen('powershell.exe', stdin=subprocess.PIPE, stdout=subprocess.PIPE)
     out, err = process.communicate(filename.encode('utf-8'))
     return out
 
+# Convert the text provided to the function to a secure string
+# Parse the Powershell output because it's ugly and horrible
+# Return the secure string
 def encryptPassword(password):
     command = '''$x = (convertto-securestring -string "%s" -asplaintext -force | convertfrom-securestring)
     write-host $x''' % password
@@ -13,6 +17,9 @@ def encryptPassword(password):
     secureString = output
     return secureString
 
+# Decrypt the secure string provided to the function
+# Parse the Powershell output
+# Return decrypted string
 def decryptPassword(securePassword):
     command = '''
     $secureObject = ConvertTo-SecureString -String %s
@@ -24,6 +31,8 @@ def decryptPassword(securePassword):
     output = (([x.decode("utf8") for x in out.split(b"$decrypted\n")])[1].split("\n"))[0]
     return output
 
+# Driver function
+# Takes in password and iteration count, prints fully encrypted key and then original password
 def testEncrypt(password,iterations):
     toEncrypt = [None] * (iterations +1)
     toDecrypt = [None] * (iterations +1)
@@ -39,6 +48,7 @@ def testEncrypt(password,iterations):
     print(toDecrypt[iterations])
     
 def main():
+    # Use this to break out of the for loop.  Lazy me.
     keeper=0
     while keeper==0:
         userPass = input("Please enter a password:\n")
